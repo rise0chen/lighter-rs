@@ -45,7 +45,6 @@ anyhow = "1.0"
 
 # Logging
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Time handling
 chrono = "0.4"
@@ -53,10 +52,10 @@ chrono = "0.4"
 # Numeric types
 num-bigint = "0.4"
 num-traits = "0.2"
-dotenv = "0.15"
 
 [dev-dependencies]
 tokio-test = "0.4"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 mockito = "1.0"
 dotenv = "0.15"
 
