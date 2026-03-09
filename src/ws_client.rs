@@ -198,7 +198,7 @@ impl WsClient {
                                 channel: format!("order_book/{market_id}"),
                             };
                             let json = serde_json::to_string(&sub_msg)?;
-                            write.send(Message::Text(json)).await.map_err(|e| {
+                            write.send(Message::Text(json.into())).await.map_err(|e| {
                                 LighterError::InvalidResponse(format!("Send error: {e}"))
                             })?;
                             tracing::debug!(market_id = %market_id, "Subscribed to order_book");
@@ -210,7 +210,7 @@ impl WsClient {
                                 channel: format!("account_all/{account_id}"),
                             };
                             let json = serde_json::to_string(&sub_msg)?;
-                            write.send(Message::Text(json)).await.map_err(|e| {
+                            write.send(Message::Text(json.into())).await.map_err(|e| {
                                 LighterError::InvalidResponse(format!("Send error: {e}"))
                             })?;
                             tracing::debug!(account_id = %account_id, "Subscribed to account_all");
