@@ -21,6 +21,10 @@ use crate::errors::{LighterError, Result};
 pub enum WsMessageType {
     #[serde(rename = "connected")]
     Connected,
+    #[serde(rename = "subscribed/market_stats")]
+    SubscribedMarket,
+    #[serde(rename = "update/market_stats")]
+    UpdateMarket,
     #[serde(rename = "subscribed/order_book")]
     SubscribedOrderBook,
     #[serde(rename = "update/order_book")]
@@ -37,6 +41,16 @@ struct SubscribeMessage {
     #[serde(rename = "type")]
     msg_type: String,
     channel: String,
+}
+
+/// Market states data structure
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MarketStates {
+    pub market_id: u32,
+    pub index_price: String,
+    pub current_funding_rate: String,
+    pub funding_rate: String,
+    pub funding_timestamp: u64,
 }
 
 /// Order book data structure
@@ -57,6 +71,7 @@ pub struct PriceLevel {
 pub struct WsClientBuilder {
     host: Option<String>,
     path: String,
+    market_ids: Vec<u32>,
     order_book_ids: Vec<u32>,
     account_ids: Vec<i64>,
 }
@@ -67,6 +82,7 @@ impl WsClientBuilder {
         Self {
             host: None,
             path: "/stream".to_string(),
+            market_ids: Vec::new(),
             order_book_ids: Vec::new(),
             account_ids: Vec::new(),
         }
@@ -85,6 +101,12 @@ impl WsClientBuilder {
     }
 
     /// Subscribe to order book updates for specific markets
+    pub fn markets(mut self, ids: Vec<u32>) -> Self {
+        self.market_ids = ids;
+        self
+    }
+
+    /// Subscribe to order book updates for specific markets
     pub fn order_books(mut self, ids: Vec<u32>) -> Self {
         self.order_book_ids = ids;
         self
@@ -98,7 +120,10 @@ impl WsClientBuilder {
 
     /// Build the WebSocket client
     pub fn build(self) -> Result<WsClient> {
-        if self.order_book_ids.is_empty() && self.account_ids.is_empty() {
+        if self.order_book_ids.is_empty()
+            && self.account_ids.is_empty()
+            && self.market_ids.is_empty()
+        {
             return Err(LighterError::ValidationError(
                 "At least one subscription (order_book or account) is required".to_string(),
             ));
@@ -111,8 +136,10 @@ impl WsClientBuilder {
 
         Ok(WsClient {
             base_url,
+            market_ids: self.market_ids,
             order_book_ids: self.order_book_ids,
             account_ids: self.account_ids,
+            market_states: Arc::new(RwLock::new(HashMap::new())),
             order_book_states: Arc::new(RwLock::new(HashMap::new())),
             account_states: Arc::new(RwLock::new(HashMap::new())),
         })
@@ -128,8 +155,10 @@ impl Default for WsClientBuilder {
 /// WebSocket client for Lighter Protocol
 pub struct WsClient {
     base_url: String,
+    market_ids: Vec<u32>,
     order_book_ids: Vec<u32>,
     account_ids: Vec<i64>,
+    market_states: Arc<RwLock<HashMap<String, MarketStates>>>,
     order_book_states: Arc<RwLock<HashMap<String, OrderBook>>>,
     account_states: Arc<RwLock<HashMap<String, Value>>>,
 }
@@ -138,6 +167,7 @@ impl std::fmt::Debug for WsClient {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("WsClient")
             .field("base_url", &self.base_url)
+            .field("market_ids", &self.market_ids)
             .field("order_book_ids", &self.order_book_ids)
             .field("account_ids", &self.account_ids)
             .finish()
@@ -170,8 +200,10 @@ impl WsClient {
         let (mut write, mut read) = ws_stream.split();
 
         // Clone states for message handler
+        let market_states = self.market_states.clone();
         let order_book_states = self.order_book_states.clone();
         let account_states = self.account_states.clone();
+        let market_ids = self.market_ids.clone();
         let order_book_ids = self.order_book_ids.clone();
         let account_ids = self.account_ids.clone();
 
@@ -192,6 +224,18 @@ impl WsClient {
                     Some("connected") => {
                         tracing::info!("WebSocket connection established");
                         // Send subscriptions
+                        for market_id in &market_ids {
+                            let sub_msg = SubscribeMessage {
+                                msg_type: "subscribe".to_string(),
+                                channel: format!("market_stats/{market_id}"),
+                            };
+                            let json = serde_json::to_string(&sub_msg)?;
+                            write.send(Message::Text(json.into())).await.map_err(|e| {
+                                LighterError::InvalidResponse(format!("Send error: {e}"))
+                            })?;
+                            tracing::debug!(market_id = %market_id, "Subscribed to market_stats");
+                        }
+
                         for market_id in &order_book_ids {
                             let sub_msg = SubscribeMessage {
                                 msg_type: "subscribe".to_string(),
@@ -214,6 +258,32 @@ impl WsClient {
                                 LighterError::InvalidResponse(format!("Send error: {e}"))
                             })?;
                             tracing::debug!(account_id = %account_id, "Subscribed to account_all");
+                        }
+                    }
+                    Some("subscribed/market_stats") => {
+                        if let Some(channel) = parsed.get("channel").and_then(|c| c.as_str()) {
+                            let market_id = channel.split(':').nth(1).unwrap_or("unknown");
+                            if let Some(market_stats) = parsed.get("market_stats") {
+                                let ob: MarketStates =
+                                    serde_json::from_value(market_stats.clone())?;
+                                market_states
+                                    .write()
+                                    .await
+                                    .insert(market_id.to_string(), ob);
+                            }
+                        }
+                    }
+                    Some("update/market_stats") => {
+                        if let Some(channel) = parsed.get("channel").and_then(|c| c.as_str()) {
+                            let market_id = channel.split(':').nth(1).unwrap_or("unknown");
+                            if let Some(market_stats) = parsed.get("market_stats") {
+                                let ob: MarketStates =
+                                    serde_json::from_value(market_stats.clone())?;
+                                market_states
+                                    .write()
+                                    .await
+                                    .insert(market_id.to_string(), ob);
+                            }
                         }
                     }
                     Some("subscribed/order_book") => {
@@ -321,6 +391,11 @@ impl WsClient {
         }
 
         Ok(())
+    }
+
+    /// Get current order book state for a market
+    pub async fn get_market(&self, market_id: &str) -> Option<MarketStates> {
+        self.market_states.read().await.get(market_id).cloned()
     }
 
     /// Get current order book state for a market
