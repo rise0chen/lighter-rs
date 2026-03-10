@@ -332,6 +332,7 @@ impl WsClient {
                             on_account_update(account_id.to_string(), parsed);
                         }
                     }
+                    Some("ping") => {}
                     _ => {
                         tracing::warn!(msg_type = ?msg_type, "Unhandled message type");
                     }
