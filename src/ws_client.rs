@@ -332,7 +332,14 @@ impl WsClient {
                             on_account_update(account_id.to_string(), parsed);
                         }
                     }
-                    Some("ping") => {}
+                    Some("ping") => {
+                        write
+                            .send(Message::Text(r#"{"type":"pong"}"#.into()))
+                            .await
+                            .map_err(|e| {
+                                LighterError::InvalidResponse(format!("Send error: {e}"))
+                            })?;
+                    }
                     _ => {
                         tracing::warn!(msg_type = ?msg_type, "Unhandled message type");
                     }
