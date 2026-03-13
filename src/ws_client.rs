@@ -29,9 +29,9 @@ pub enum WsMessageType {
     SubscribedOrderBook,
     #[serde(rename = "update/order_book")]
     UpdateOrderBook,
-    #[serde(rename = "subscribed/account_all")]
+    #[serde(rename = "subscribed/account_tx")]
     SubscribedAccount,
-    #[serde(rename = "update/account_all")]
+    #[serde(rename = "update/account_tx")]
     UpdateAccount,
 }
 
@@ -41,6 +41,8 @@ struct SubscribeMessage {
     #[serde(rename = "type")]
     msg_type: String,
     channel: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    auth: Option<String>,
 }
 
 /// Market states data structure
@@ -51,6 +53,15 @@ pub struct MarketStates {
     pub current_funding_rate: String,
     pub funding_rate: String,
     pub funding_timestamp: u64,
+}
+
+/// Account TX data structure
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AccountTx {
+    pub account_index: i64,
+    pub api_key_index: u8,
+    pub nonce: u64,
+    pub status: i32,
 }
 
 /// Order book data structure
@@ -71,6 +82,7 @@ pub struct PriceLevel {
 pub struct WsClientBuilder {
     host: Option<String>,
     path: String,
+    auth: Option<String>,
     market_ids: Vec<u32>,
     order_book_ids: Vec<u32>,
     account_ids: Vec<i64>,
@@ -82,6 +94,7 @@ impl WsClientBuilder {
         Self {
             host: None,
             path: "/stream".to_string(),
+            auth: None,
             market_ids: Vec::new(),
             order_book_ids: Vec::new(),
             account_ids: Vec::new(),
@@ -97,6 +110,12 @@ impl WsClientBuilder {
     /// Set the WebSocket path (defaults to "/stream")
     pub fn path(mut self, path: impl Into<String>) -> Self {
         self.path = path.into();
+        self
+    }
+
+    /// Set the WebSocket auth
+    pub fn auth(mut self, auth: impl Into<String>) -> Self {
+        self.auth = Some(auth.into());
         self
     }
 
@@ -136,12 +155,13 @@ impl WsClientBuilder {
 
         Ok(WsClient {
             base_url,
+            auth: self.auth,
             market_ids: self.market_ids,
             order_book_ids: self.order_book_ids,
             account_ids: self.account_ids,
             market_states: Arc::new(RwLock::new(HashMap::new())),
             order_book_states: Arc::new(RwLock::new(HashMap::new())),
-            account_states: Arc::new(RwLock::new(HashMap::new())),
+            account_txs: Arc::new(RwLock::new(HashMap::new())),
         })
     }
 }
@@ -155,12 +175,13 @@ impl Default for WsClientBuilder {
 /// WebSocket client for Lighter Protocol
 pub struct WsClient {
     base_url: String,
+    auth: Option<String>,
     market_ids: Vec<u32>,
     order_book_ids: Vec<u32>,
     account_ids: Vec<i64>,
     market_states: Arc<RwLock<HashMap<String, MarketStates>>>,
     order_book_states: Arc<RwLock<HashMap<String, OrderBook>>>,
-    account_states: Arc<RwLock<HashMap<String, Value>>>,
+    account_txs: Arc<RwLock<HashMap<String, AccountTx>>>,
 }
 
 impl std::fmt::Debug for WsClient {
@@ -185,11 +206,7 @@ impl WsClient {
     /// # Arguments
     /// * `on_order_book_update` - Callback for order book updates (market_id, order_book)
     /// * `on_account_update` - Callback for account updates (account_id, account_data)
-    pub async fn run<F1, F2>(&self, on_order_book_update: F1, on_account_update: F2) -> Result<()>
-    where
-        F1: Fn(String, OrderBook) + Send + Sync + 'static,
-        F2: Fn(String, Value) + Send + Sync + 'static,
-    {
+    pub async fn run(&self) -> Result<()> {
         // Connect to WebSocket
         let (ws_stream, _) = connect_async(&self.base_url).await.map_err(|e| {
             LighterError::InvalidConfiguration(format!("WebSocket connection failed: {e}"))
@@ -202,14 +219,10 @@ impl WsClient {
         // Clone states for message handler
         let market_states = self.market_states.clone();
         let order_book_states = self.order_book_states.clone();
-        let account_states = self.account_states.clone();
+        let account_txs = self.account_txs.clone();
         let market_ids = self.market_ids.clone();
         let order_book_ids = self.order_book_ids.clone();
         let account_ids = self.account_ids.clone();
-
-        // Wrap callbacks in Arc for sharing
-        let on_order_book_update = Arc::new(on_order_book_update);
-        let on_account_update = Arc::new(on_account_update);
 
         // Message handling loop
         while let Some(message) = read.next().await {
@@ -217,6 +230,7 @@ impl WsClient {
                 .map_err(|e| LighterError::InvalidResponse(format!("WebSocket error: {e}")))?;
 
             if let Message::Text(text) = message {
+                tracing::trace!("{text}");
                 let parsed: Value = serde_json::from_str(&text)?;
                 let msg_type = parsed.get("type").and_then(|t| t.as_str());
 
@@ -228,6 +242,7 @@ impl WsClient {
                             let sub_msg = SubscribeMessage {
                                 msg_type: "subscribe".to_string(),
                                 channel: format!("market_stats/{market_id}"),
+                                auth: None,
                             };
                             let json = serde_json::to_string(&sub_msg)?;
                             write.send(Message::Text(json.into())).await.map_err(|e| {
@@ -240,6 +255,7 @@ impl WsClient {
                             let sub_msg = SubscribeMessage {
                                 msg_type: "subscribe".to_string(),
                                 channel: format!("order_book/{market_id}"),
+                                auth: None,
                             };
                             let json = serde_json::to_string(&sub_msg)?;
                             write.send(Message::Text(json.into())).await.map_err(|e| {
@@ -251,13 +267,14 @@ impl WsClient {
                         for account_id in &account_ids {
                             let sub_msg = SubscribeMessage {
                                 msg_type: "subscribe".to_string(),
-                                channel: format!("account_all/{account_id}"),
+                                channel: format!("account_tx/{account_id}"),
+                                auth: self.auth.clone(),
                             };
                             let json = serde_json::to_string(&sub_msg)?;
                             write.send(Message::Text(json.into())).await.map_err(|e| {
                                 LighterError::InvalidResponse(format!("Send error: {e}"))
                             })?;
-                            tracing::debug!(account_id = %account_id, "Subscribed to account_all");
+                            tracing::debug!(account_id = %account_id, "Subscribed to account_tx");
                         }
                     }
                     Some("subscribed/market_stats") => {
@@ -294,8 +311,7 @@ impl WsClient {
                                 order_book_states
                                     .write()
                                     .await
-                                    .insert(market_id.to_string(), ob.clone());
-                                on_order_book_update(market_id.to_string(), ob);
+                                    .insert(market_id.to_string(), ob);
                             }
                         }
                     }
@@ -307,29 +323,28 @@ impl WsClient {
                                 if let Some(existing) = states.get_mut(market_id) {
                                     // Update order book state
                                     Self::update_order_book_state(existing, update)?;
-                                    on_order_book_update(market_id.to_string(), existing.clone());
                                 }
                             }
                         }
                     }
-                    Some("subscribed/account_all") => {
+                    Some("subscribed/account_tx") => {
                         if let Some(channel) = parsed.get("channel").and_then(|c| c.as_str()) {
                             let account_id = channel.split(':').nth(1).unwrap_or("unknown");
-                            account_states
-                                .write()
-                                .await
-                                .insert(account_id.to_string(), parsed.clone());
-                            on_account_update(account_id.to_string(), parsed);
+                            if let Some(txs) = parsed.get("txs") {
+                                let ob: Vec<AccountTx> = serde_json::from_value(txs.clone())?;
+                                let ob = ob.into_iter().max_by_key(|x| x.nonce).unwrap();
+                                account_txs.write().await.insert(account_id.to_string(), ob);
+                            }
                         }
                     }
-                    Some("update/account_all") => {
+                    Some("update/account_tx") => {
                         if let Some(channel) = parsed.get("channel").and_then(|c| c.as_str()) {
                             let account_id = channel.split(':').nth(1).unwrap_or("unknown");
-                            account_states
-                                .write()
-                                .await
-                                .insert(account_id.to_string(), parsed.clone());
-                            on_account_update(account_id.to_string(), parsed);
+                            if let Some(txs) = parsed.get("txs") {
+                                let ob: Vec<AccountTx> = serde_json::from_value(txs.clone())?;
+                                let ob = ob.into_iter().max_by_key(|x| x.nonce).unwrap();
+                                account_txs.write().await.insert(account_id.to_string(), ob);
+                            }
                         }
                     }
                     Some("ping") => {
@@ -412,8 +427,8 @@ impl WsClient {
     }
 
     /// Get current account state
-    pub async fn get_account(&self, account_id: &str) -> Option<Value> {
-        self.account_states.read().await.get(account_id).cloned()
+    pub async fn get_account(&self, account_id: &str) -> Option<AccountTx> {
+        self.account_txs.read().await.get(account_id).cloned()
     }
 }
 
