@@ -343,7 +343,16 @@ impl WsClient {
                             if let Some(txs) = parsed.get("txs") {
                                 let ob: Vec<AccountTx> = serde_json::from_value(txs.clone())?;
                                 let ob = ob.into_iter().max_by_key(|x| x.nonce).unwrap();
-                                account_txs.write().await.insert(account_id.to_string(), ob);
+                                account_txs
+                                    .write()
+                                    .await
+                                    .entry(account_id.to_string())
+                                    .and_modify(|x| {
+                                        if x.nonce < ob.nonce {
+                                            *x = ob.clone()
+                                        }
+                                    })
+                                    .or_insert(ob);
                             }
                         }
                     }
