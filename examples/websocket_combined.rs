@@ -92,7 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("{}\n", "═".repeat(50));
 
     // Run the WebSocket client
-    client.run(on_order_book_update, on_account_update).await?;
+    client.run().await?;
 
     Ok(())
 }

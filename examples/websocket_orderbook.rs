@@ -11,15 +11,18 @@ use lighter_rs::ws_client::{OrderBook, WsClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .with_env_filter("info,lighter_rs=trace")
+        .init();
     tracing::info!("╔═══════════════════════════════════════════════════╗");
     tracing::info!("║   Lighter RS - WebSocket Order Book Example      ║");
     tracing::info!("╚═══════════════════════════════════════════════════╝\n");
 
     // Create WebSocket client
     let client = WsClient::builder()
-        .host("api-testnet.lighter.xyz")
-        .order_books(vec![0, 1]) // Subscribe to markets 0 and 1
+        .host("mainnet.zklighter.elliot.ai")
+        .markets(vec![0]) // Subscribe to markets 0 and 1
         .build()?;
 
     tracing::info!("Connecting to WebSocket...");
@@ -74,7 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("{}\n", "═".repeat(50));
 
     // Run the WebSocket client
-    client.run(on_order_book_update, on_account_update).await?;
+    client.run().await?;
 
     Ok(())
 }

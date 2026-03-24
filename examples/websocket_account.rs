@@ -16,7 +16,10 @@ use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .with_env_filter("info,lighter_rs=trace")
+        .init();
     tracing::info!("╔═══════════════════════════════════════════════════╗");
     tracing::info!("║   Lighter RS - WebSocket Account Monitor         ║");
     tracing::info!("╚═══════════════════════════════════════════════════╝\n");
@@ -25,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let account_index: i64 = env::var("LIGHTER_ACCOUNT_INDEX")
         .unwrap_or_else(|_| {
             tracing::info!("⚠ LIGHTER_ACCOUNT_INDEX not set, using example account 12345");
-            "12345".to_string()
+            "718589".to_string()
         })
         .parse()
         .expect("LIGHTER_ACCOUNT_INDEX must be a valid number");
@@ -36,8 +39,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create WebSocket client
     let client = WsClient::builder()
-        .host("api-testnet.lighter.xyz")
+        .host("mainnet.zklighter.elliot.ai")
         .accounts(vec![account_index])
+        .auth("ro:718589:single:2088477944:8299f1c0611f31b0e7db62767b4bdc50b68acfd1ad432a63fce0ebdc5812ee31")
         .build()?;
 
     // Placeholder for order book updates (not used in this example)
@@ -47,6 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Define callback for account updates
     let on_account_update = move |account_id: String, account_data: Value| {
         tracing::info!("═══ Account Update: {} ═══", account_id);
+        tracing::info!("{:?}", account_data);
 
         // Extract key account information
         if let Some(obj) = account_data.as_object() {
@@ -129,7 +134,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("{}\n", "═".repeat(50));
 
     // Run the WebSocket client
-    client.run(on_order_book_update, on_account_update).await?;
-
-    Ok(())
+    loop {
+        let ret = client.run().await;
+        println!("{ret:?}")
+    }
 }

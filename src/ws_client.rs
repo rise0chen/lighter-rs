@@ -5,6 +5,7 @@
 //! - Account updates
 //! - Real-time trading data
 
+use core::time::Duration;
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -225,7 +226,28 @@ impl WsClient {
         let account_ids = self.account_ids.clone();
 
         // Message handling loop
-        while let Some(message) = read.next().await {
+        let mut last_time = chrono::Utc::now().timestamp();
+        let mut interval = tokio::time::interval(Duration::from_secs(28));
+        loop {
+            let message =
+                match futures_util::future::select(Box::pin(interval.tick()), read.next()).await {
+                    futures_util::future::Either::Left(_) => {
+                        if chrono::Utc::now().timestamp() - last_time > 120 {
+                            return Ok(());
+                        }
+                        write.send(Message::Ping("".into())).await.map_err(|e| {
+                            LighterError::InvalidResponse(format!("Ping error: {e}"))
+                        })?;
+                        continue;
+                    }
+                    futures_util::future::Either::Right((m, _)) => {
+                        if let Some(m) = m {
+                            m
+                        } else {
+                            return Ok(());
+                        }
+                    }
+                };
             let message = message
                 .map_err(|e| LighterError::InvalidResponse(format!("WebSocket error: {e}")))?;
 
@@ -368,10 +390,12 @@ impl WsClient {
                         tracing::warn!(msg_type = ?msg_type, "Unhandled message type");
                     }
                 }
+            } else if let Message::Pong(_) = message {
+                last_time = chrono::Utc::now().timestamp();
+            } else {
+                tracing::warn!(message = ?message, "Unhandled ws message");
             }
         }
-
-        Ok(())
     }
 
     /// Update order book state with incremental updates
