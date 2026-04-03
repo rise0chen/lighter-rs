@@ -202,6 +202,12 @@ impl WsClient {
         WsClientBuilder::new()
     }
 
+    pub async fn clear(&self) {
+        self.market_states.write().await.clear();
+        self.order_book_states.write().await.clear();
+        self.account_txs.write().await.clear();
+    }
+
     /// Run the WebSocket client with callbacks
     ///
     /// # Arguments
