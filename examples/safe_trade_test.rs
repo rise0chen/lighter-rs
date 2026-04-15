@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Step 2: Create a safe limit order
     tracing::info!("Step 2: Creating a SAFE limit order...");
 
-    let market_index = 0u8; // ETH market
+    let market_index: i16 = 0; // ETH market
     let client_order_index = chrono::Utc::now().timestamp_millis();
 
     // IMPORTANT: Place order far from market to ensure it won't fill

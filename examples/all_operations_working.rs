@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     tracing::info!("✅ Client initialized\n");
 
-    let market_index = 0u8;
+    let market_index: i16 = 0;
     let tiny_amount = 100i64; // 0.0001 ETH
     let default_expiry = chrono::Utc::now().timestamp_millis() + (28 * 24 * 60 * 60 * 1000);
     let mut results = Vec::new();

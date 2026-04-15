@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         304, // 304 = Mainnet, 300 = Testnet
     )?;
 
-    let market_index = 0u8; // Market 0 = ETH
+    let market_index: i16 = 0; // Market 0 = ETH
     let mid_price = 300_000; // Price protection for market order
 
     tracing::info!("Creating market order...");

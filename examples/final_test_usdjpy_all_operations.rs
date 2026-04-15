@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("  Account: {}", account_index);
     tracing::info!("  Total cost: < $3\n");
 
-    let market_index = 98u8; // USDJPY
+    let market_index: i16 = 98; // USDJPY
     let small_amount = 500i64; // 0.5 USD with 3 decimals
     let default_expiry = chrono::Utc::now().timestamp_millis() + (28 * 24 * 60 * 60 * 1000);
     let mut results = Vec::new();

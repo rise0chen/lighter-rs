@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("   ✅ Client ready\n");
 
     // Market selection
-    let market_index = 0u8;
+    let market_index: i16 = 0;
     let market_name = "ETH/USD";
 
     tracing::info!("📊 Step 2: Market Selection");

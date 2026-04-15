@@ -88,8 +88,8 @@ pub const MAX_API_KEY_INDEX: u8 = 254; // (1 << 8) - 2
 pub const NIL_API_KEY_INDEX: u8 = MAX_API_KEY_INDEX + 1;
 
 // Market Index Limits
-pub const MIN_MARKET_INDEX: u8 = 0;
-pub const MAX_MARKET_INDEX: u8 = 254; // (1 << 8) - 2
+pub const MIN_MARKET_INDEX: i16 = 0;
+pub const MAX_MARKET_INDEX: i16 = (1 << 14) - 2;
 
 // Pool Constants
 pub const MAX_INVESTED_PUBLIC_POOL_COUNT: i64 = 16;

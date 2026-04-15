@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("✅ Client: Account {}", account_index);
     tracing::info!("💰 Total cost: < $2\n");
 
-    let market = 0u8; // ETH - we know this works!
+    let market: i16 = 0; // ETH - we know this works!
     let micro = 50i64; // 0.00005 ETH (~$0.15)
     let tiny = 100i64; // 0.0001 ETH (~$0.30)
     let expiry = chrono::Utc::now().timestamp_millis() + (28 * 24 * 60 * 60 * 1000);

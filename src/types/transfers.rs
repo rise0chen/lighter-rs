@@ -26,7 +26,7 @@ pub struct ChangePubKeyReq {
 /// Update Leverage Transaction Request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateLeverageTxReq {
-    pub market_index: u8,
+    pub market_index: i16,
     pub initial_margin_fraction: u16,
     pub margin_mode: u8,
 }
@@ -34,7 +34,7 @@ pub struct UpdateLeverageTxReq {
 /// Update Margin Transaction Request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateMarginTxReq {
-    pub market_index: u8,
+    pub market_index: i16,
     pub usdc_amount: i64,
     pub direction: u8,
 }
@@ -233,7 +233,7 @@ impl TxInfo for L2ChangePubKeyTxInfo {
 pub struct L2UpdateLeverageTxInfo {
     pub account_index: i64,
     pub api_key_index: u8,
-    pub market_index: u8,
+    pub market_index: i16,
     pub initial_margin_fraction: u16,
     pub expired_at: i64,
     pub nonce: i64,
@@ -308,7 +308,7 @@ impl TxInfo for L2UpdateLeverageTxInfo {
 pub struct L2UpdateMarginTxInfo {
     pub account_index: i64,
     pub api_key_index: u8,
-    pub market_index: u8,
+    pub market_index: i16,
     pub usdc_amount: i64,
     pub direction: u8,
     pub expired_at: i64,

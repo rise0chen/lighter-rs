@@ -84,8 +84,8 @@ pub struct WsClientBuilder {
     host: Option<String>,
     path: String,
     auth: Option<String>,
-    market_ids: Vec<u32>,
-    order_book_ids: Vec<u32>,
+    market_ids: Vec<i16>,
+    order_book_ids: Vec<i16>,
     account_ids: Vec<i64>,
 }
 
@@ -121,13 +121,13 @@ impl WsClientBuilder {
     }
 
     /// Subscribe to order book updates for specific markets
-    pub fn markets(mut self, ids: Vec<u32>) -> Self {
+    pub fn markets(mut self, ids: Vec<i16>) -> Self {
         self.market_ids = ids;
         self
     }
 
     /// Subscribe to order book updates for specific markets
-    pub fn order_books(mut self, ids: Vec<u32>) -> Self {
+    pub fn order_books(mut self, ids: Vec<i16>) -> Self {
         self.order_book_ids = ids;
         self
     }
@@ -177,8 +177,8 @@ impl Default for WsClientBuilder {
 pub struct WsClient {
     base_url: String,
     auth: Option<String>,
-    market_ids: Vec<u32>,
-    order_book_ids: Vec<u32>,
+    market_ids: Vec<i16>,
+    order_book_ids: Vec<i16>,
     account_ids: Vec<i64>,
     market_states: Arc<RwLock<HashMap<String, MarketStates>>>,
     order_book_states: Arc<RwLock<HashMap<String, OrderBook>>>,

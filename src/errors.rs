@@ -38,13 +38,13 @@ pub enum LighterError {
         "Market index {0} is too low, minimum is {}",
         crate::constants::MIN_MARKET_INDEX
     )]
-    MarketIndexTooLow(u8),
+    MarketIndexTooLow(i16),
 
     #[error(
         "Market index {0} is too high, maximum is {}",
         crate::constants::MAX_MARKET_INDEX
     )]
-    MarketIndexTooHigh(u8),
+    MarketIndexTooHigh(i16),
 
     #[error("Market index mismatch")]
     MarketIndexMismatch,

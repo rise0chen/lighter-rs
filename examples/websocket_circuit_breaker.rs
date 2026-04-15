@@ -183,7 +183,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Order book callback with trading logic
     let on_order_book_update = move |market_id: String, order_book: OrderBook| {
-        let market_id_num: u8 = market_id.parse().unwrap_or(0);
+        let market_id_num: i16 = market_id.parse().unwrap_or(0);
 
         // Check circuit breaker
         let cb = circuit_breaker_clone.clone();

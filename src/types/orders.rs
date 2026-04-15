@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// Create Order Transaction Request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateOrderTxReq {
-    pub market_index: u8,
+    pub market_index: i16,
     pub client_order_index: i64,
     pub base_amount: i64,
     pub price: u32,
@@ -29,7 +29,7 @@ pub struct L2CreateOrderTxInfo {
     pub api_key_index: u8,
     // Flatten order_info fields to top level with PascalCase
     #[serde(rename = "MarketIndex")]
-    pub market_index: u8,
+    pub market_index: i16,
     #[serde(rename = "ClientOrderIndex")]
     pub client_order_index: i64,
     #[serde(rename = "BaseAmount")]
@@ -249,14 +249,14 @@ impl L2CreateOrderTxInfo {
 /// Cancel Order Transaction Request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CancelOrderTxReq {
-    pub market_index: u8,
+    pub market_index: i16,
     pub index: i64,
 }
 
 /// Modify Order Transaction Request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModifyOrderTxReq {
-    pub market_index: u8,
+    pub market_index: i16,
     pub index: i64,
     pub base_amount: i64,
     pub price: u32,
@@ -285,7 +285,7 @@ pub struct L2CancelOrderTxInfo {
     #[serde(rename = "ApiKeyIndex")]
     pub api_key_index: u8,
     #[serde(rename = "MarketIndex")]
-    pub market_index: u8,
+    pub market_index: i16,
     #[serde(rename = "Index")]
     pub index: i64,
     #[serde(rename = "ExpiredAt")]
@@ -362,7 +362,7 @@ impl TxInfo for L2CancelOrderTxInfo {
 pub struct L2ModifyOrderTxInfo {
     pub account_index: i64,
     pub api_key_index: u8,
-    pub market_index: u8,
+    pub market_index: i16,
     pub index: i64,
     pub base_amount: i64,
     pub price: u32,

@@ -693,7 +693,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_limit_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         price: u32,
@@ -726,7 +726,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_market_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         price: u32,
@@ -754,7 +754,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_tp_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         trigger_price: u32,
@@ -783,7 +783,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_tp_limit_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         trigger_price: u32,
@@ -812,7 +812,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_sl_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         trigger_price: u32,
@@ -841,7 +841,7 @@ impl TxClient {
     #[allow(clippy::too_many_arguments)]
     pub async fn create_sl_limit_order(
         &self,
-        market_index: u8,
+        market_index: i16,
         client_order_index: i64,
         base_amount: i64,
         trigger_price: u32,
@@ -875,7 +875,7 @@ impl TxClient {
     /// * `opts` - Optional transaction options
     pub async fn update_leverage_with_multiplier(
         &self,
-        market_index: u8,
+        market_index: i16,
         leverage: u16,
         margin_mode: u8,
         opts: Option<TransactOpts>,

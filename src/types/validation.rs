@@ -23,7 +23,7 @@ pub fn validate_api_key_index(index: u8) -> Result<()> {
 }
 
 /// Validate market index
-pub fn validate_market_index(index: u8) -> Result<()> {
+pub fn validate_market_index(index: i16) -> Result<()> {
     if index > MAX_MARKET_INDEX {
         return Err(LighterError::MarketIndexTooHigh(index));
     }

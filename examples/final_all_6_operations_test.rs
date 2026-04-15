@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("   Account: {}", account_index);
     tracing::info!("   Total test cost: < $5\n");
 
-    let market_index = 0u8;
+    let market_index: i16 = 0;
     let tiny = 100i64; // 0.0001 ETH (~$0.30)
     let default_expiry = chrono::Utc::now().timestamp_millis() + (28 * 24 * 60 * 60 * 1000);
     let mut results = Vec::new();

@@ -36,7 +36,7 @@ pub trait TxInfo {
 /// Order information structure used in order-related transactions
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrderInfo {
-    pub market_index: u8,
+    pub market_index: i16,
     pub client_order_index: i64,
     pub base_amount: i64,
     pub price: u32,
