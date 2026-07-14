@@ -50,6 +50,7 @@ struct SubscribeMessage {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketStates {
     pub market_id: u32,
+    pub mark_price: String,
     pub index_price: String,
     pub current_funding_rate: String,
     pub funding_rate: String,
