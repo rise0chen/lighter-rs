@@ -29,7 +29,7 @@ tokio = {version = "1", default-features = false, features = ["full"]}
 
 # WebSocket Client
 futures-util = {version = "0.3", default-features = false}
-tokio-tungstenite = {version = "0.28", default-features = false, features = ["connect"]}
+tokio-tungstenite = {version = "0.29", default-features = false, features = ["connect"]}
 
 # Cryptography
 base64 = {version = "0.22", default-features = false}
@@ -41,7 +41,7 @@ poseidon-hash = {version = "0.1", default-features = false}
 
 # Error handling
 anyhow = {version = "1", default-features = false}
-thiserror = {version = "1", default-features = false}
+thiserror = {version = "2", default-features = false}
 
 # Logging
 tracing = {version = "0.1", default-features = false}

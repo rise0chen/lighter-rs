@@ -10,39 +10,39 @@ pub type Result<T> = std::result::Result<T, LighterError>;
 pub enum LighterError {
     // Account and API Key Errors
     #[error(
-        "Account index {0} is too low, minimum is {}",
-        crate::constants::MIN_ACCOUNT_INDEX
+        "Account index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ACCOUNT_INDEX
     )]
     AccountIndexTooLow(i64),
 
     #[error(
-        "Account index {0} is too high, maximum is {}",
-        crate::constants::MAX_ACCOUNT_INDEX
+        "Account index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ACCOUNT_INDEX
     )]
     AccountIndexTooHigh(i64),
 
     #[error(
-        "API key index {0} is too low, minimum is {}",
-        crate::constants::MIN_API_KEY_INDEX
+        "API key index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_API_KEY_INDEX
     )]
     ApiKeyIndexTooLow(u8),
 
     #[error(
-        "API key index {0} is too high, maximum is {}",
-        crate::constants::MAX_API_KEY_INDEX
+        "API key index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_API_KEY_INDEX
     )]
     ApiKeyIndexTooHigh(u8),
 
     // Market Errors
     #[error(
-        "Market index {0} is too low, minimum is {}",
-        crate::constants::MIN_MARKET_INDEX
+        "Market index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_MARKET_INDEX
     )]
     MarketIndexTooLow(i16),
 
     #[error(
-        "Market index {0} is too high, maximum is {}",
-        crate::constants::MAX_MARKET_INDEX
+        "Market index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_MARKET_INDEX
     )]
     MarketIndexTooHigh(i16),
 
@@ -51,14 +51,14 @@ pub enum LighterError {
 
     // Order Errors
     #[error(
-        "Client order index {0} is too low, minimum is {}",
-        crate::constants::MIN_CLIENT_ORDER_INDEX
+        "Client order index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_CLIENT_ORDER_INDEX
     )]
     ClientOrderIndexTooLow(i64),
 
     #[error(
-        "Client order index {0} is too high, maximum is {}",
-        crate::constants::MAX_CLIENT_ORDER_INDEX
+        "Client order index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_CLIENT_ORDER_INDEX
     )]
     ClientOrderIndexTooHigh(i64),
 
@@ -66,26 +66,26 @@ pub enum LighterError {
     ClientOrderIndexNotNil,
 
     #[error(
-        "Order index {0} is too low, minimum is {}",
-        crate::constants::MIN_ORDER_INDEX
+        "Order index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ORDER_INDEX
     )]
     OrderIndexTooLow(i64),
 
     #[error(
-        "Order index {0} is too high, maximum is {}",
-        crate::constants::MAX_ORDER_INDEX
+        "Order index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ORDER_INDEX
     )]
     OrderIndexTooHigh(i64),
 
     #[error(
-        "Base amount {0} is too low, minimum is {}",
-        crate::constants::MIN_ORDER_BASE_AMOUNT
+        "Base amount {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ORDER_BASE_AMOUNT
     )]
     BaseAmountTooLow(i64),
 
     #[error(
-        "Base amount {0} is too high, maximum is {}",
-        crate::constants::MAX_ORDER_BASE_AMOUNT
+        "Base amount {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ORDER_BASE_AMOUNT
     )]
     BaseAmountTooHigh(i64),
 
@@ -96,14 +96,14 @@ pub enum LighterError {
     BaseAmountNotNil,
 
     #[error(
-        "Order price {0} is too low, minimum is {}",
-        crate::constants::MIN_ORDER_PRICE
+        "Order price {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ORDER_PRICE
     )]
     PriceTooLow(u32),
 
     #[error(
-        "Order price {0} is too high, maximum is {}",
-        crate::constants::MAX_ORDER_PRICE
+        "Order price {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ORDER_PRICE
     )]
     PriceTooHigh(u32),
 
@@ -133,20 +133,20 @@ pub enum LighterError {
 
     // Pool Errors
     #[error(
-        "Public pool index {0} is too low, minimum is {}",
-        crate::constants::MIN_ACCOUNT_INDEX
+        "Public pool index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ACCOUNT_INDEX
     )]
     PublicPoolIndexTooLow(i64),
 
     #[error(
-        "Public pool index {0} is too high, maximum is {}",
-        crate::constants::MAX_ACCOUNT_INDEX
+        "Public pool index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ACCOUNT_INDEX
     )]
     PublicPoolIndexTooHigh(i64),
 
     #[error(
-        "Pool operator fee is invalid, should be 0 to {}",
-        crate::constants::FEE_TICK
+        "Pool operator fee is invalid, should be 0 to {max}",
+        max = crate::constants::FEE_TICK
     )]
     InvalidPoolOperatorFee,
 
@@ -154,14 +154,14 @@ pub enum LighterError {
     InvalidPoolStatus,
 
     #[error(
-        "Pool initial total shares {0} is too low, minimum is {}",
-        crate::constants::MIN_INITIAL_TOTAL_SHARES
+        "Pool initial total shares {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_INITIAL_TOTAL_SHARES
     )]
     PoolInitialTotalSharesTooLow(i64),
 
     #[error(
-        "Pool initial total shares {0} is too high, maximum is {}",
-        crate::constants::MAX_INITIAL_TOTAL_SHARES
+        "Pool initial total shares {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_INITIAL_TOTAL_SHARES
     )]
     PoolInitialTotalSharesTooHigh(i64),
 
@@ -169,57 +169,57 @@ pub enum LighterError {
     PoolMinOperatorShareRateTooLow,
 
     #[error(
-        "Pool min operator share rate is too high, maximum is {}",
-        crate::constants::SHARE_TICK
+        "Pool min operator share rate is too high, maximum is {max}",
+        max = crate::constants::SHARE_TICK
     )]
     PoolMinOperatorShareRateTooHigh,
 
     #[error(
-        "Pool mint share amount {0} is too low, minimum is {}",
-        crate::constants::MIN_POOL_SHARES_TO_MINT_OR_BURN
+        "Pool mint share amount {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_POOL_SHARES_TO_MINT_OR_BURN
     )]
     PoolMintShareAmountTooLow(i64),
 
     #[error(
-        "Pool mint share amount {0} is too high, maximum is {}",
-        crate::constants::MAX_POOL_SHARES_TO_MINT_OR_BURN
+        "Pool mint share amount {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_POOL_SHARES_TO_MINT_OR_BURN
     )]
     PoolMintShareAmountTooHigh(i64),
 
     #[error(
-        "Pool burn share amount {0} is too low, minimum is {}",
-        crate::constants::MIN_POOL_SHARES_TO_MINT_OR_BURN
+        "Pool burn share amount {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_POOL_SHARES_TO_MINT_OR_BURN
     )]
     PoolBurnShareAmountTooLow(i64),
 
     #[error(
-        "Pool burn share amount {0} is too high, maximum is {}",
-        crate::constants::MAX_POOL_SHARES_TO_MINT_OR_BURN
+        "Pool burn share amount {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_POOL_SHARES_TO_MINT_OR_BURN
     )]
     PoolBurnShareAmountTooHigh(i64),
 
     // Transfer and Withdrawal Errors
     #[error(
-        "Withdrawal amount {0} is too low, minimum is {}",
-        crate::constants::MIN_WITHDRAWAL_AMOUNT
+        "Withdrawal amount {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_WITHDRAWAL_AMOUNT
     )]
     WithdrawalAmountTooLow(u64),
 
     #[error(
-        "Withdrawal amount {0} is too high, maximum is {}",
-        crate::constants::MAX_WITHDRAWAL_AMOUNT
+        "Withdrawal amount {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_WITHDRAWAL_AMOUNT
     )]
     WithdrawalAmountTooHigh(u64),
 
     #[error(
-        "Transfer amount {0} is too low, minimum is {}",
-        crate::constants::MIN_TRANSFER_AMOUNT
+        "Transfer amount {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_TRANSFER_AMOUNT
     )]
     TransferAmountTooLow(i64),
 
     #[error(
-        "Transfer amount {0} is too high, maximum is {}",
-        crate::constants::MAX_TRANSFER_AMOUNT
+        "Transfer amount {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_TRANSFER_AMOUNT
     )]
     TransferAmountTooHigh(i64),
 
@@ -227,32 +227,32 @@ pub enum LighterError {
     TransferFeeNegative,
 
     #[error(
-        "Transfer fee is too high, maximum is {}",
-        crate::constants::MAX_TRANSFER_AMOUNT
+        "Transfer fee is too high, maximum is {max}",
+        max = crate::constants::MAX_TRANSFER_AMOUNT
     )]
     TransferFeeTooHigh,
 
     #[error(
-        "To account index {0} is too low, minimum is {}",
-        crate::constants::MIN_ACCOUNT_INDEX
+        "To account index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ACCOUNT_INDEX
     )]
     ToAccountIndexTooLow(i64),
 
     #[error(
-        "To account index {0} is too high, maximum is {}",
-        crate::constants::MAX_ACCOUNT_INDEX
+        "To account index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ACCOUNT_INDEX
     )]
     ToAccountIndexTooHigh(i64),
 
     #[error(
-        "From account index {0} is too low, minimum is {}",
-        crate::constants::MIN_ACCOUNT_INDEX
+        "From account index {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_ACCOUNT_INDEX
     )]
     FromAccountIndexTooLow(i64),
 
     #[error(
-        "From account index {0} is too high, maximum is {}",
-        crate::constants::MAX_ACCOUNT_INDEX
+        "From account index {0} is too high, maximum is {max}",
+        max = crate::constants::MAX_ACCOUNT_INDEX
     )]
     FromAccountIndexTooHigh(i64),
 
@@ -261,8 +261,8 @@ pub enum LighterError {
     InitialMarginFractionTooLow,
 
     #[error(
-        "Initial margin fraction {0} is too high, maximum is {}",
-        crate::constants::MARGIN_FRACTION_TICK
+        "Initial margin fraction {0} is too high, maximum is {max}",
+        max = crate::constants::MARGIN_FRACTION_TICK
     )]
     InitialMarginFractionTooHigh(u16),
 
@@ -273,7 +273,10 @@ pub enum LighterError {
     InvalidUpdateMarginDirection,
 
     // General Errors
-    #[error("Nonce {0} is too low, minimum is {}", crate::constants::MIN_NONCE)]
+    #[error(
+        "Nonce {0} is too low, minimum is {min}",
+        min = crate::constants::MIN_NONCE
+    )]
     NonceTooLow(i64),
 
     #[error("ExpiredAt is invalid")]

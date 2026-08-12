@@ -646,7 +646,7 @@ mod tests {
         let tx_info = L2CancelOrderTxInfo {
             account_index: 12345,
             api_key_index: 0,
-            market_index: 255,
+            market_index: 1 << 14,
             index: 123456,
             expired_at: 1000000,
             nonce: 1,
